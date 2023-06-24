@@ -1,0 +1,104 @@
+Props Drilling:
+
+Usamos props quando precisamos transferir/passar informações de um componente para outro, porém pode acontecer que dependendo do tamanho e da arquitetura da nossa aplicação
+ocorram casos de precisar passar não só mente de A -> B mas também para C, D , E...
+
+A -> B -> C ... -> Z
+
+O uso do contexto permite resolver esse problema: Abaixo segue um exemplo de prop drilling e de como resolver usando o contexto:
+
+// Componente Pai
+
+
+function Pai() {
+  const dadosPai = "Dados do Pai";
+
+  return (
+    <div>
+      <h2>Pai</h2>
+      <Filho dadosPai={dadosPai} />
+    </div>
+  );
+}
+
+
+
+// Componente Filho
+
+function Filho(props) {
+  const dadosFilho = "Dados do Filho";
+
+  return (
+    <div>
+      <h3>Filho</h3>
+      <Neto dadosPai={props.dadosPai} dadosFilho={dadosFilho} />
+    </div>
+  );
+}
+
+
+
+function Neto(props) {
+  return (
+    <div>
+      <h4>Neto</h4>
+      <p>Dados do Pai: {props.dadosPai}</p>
+      <p>Dados do Filho: {props.dadosFilho}</p>
+    </div>
+  );
+}
+
+
+Agora usando context:
+
+const MeuContexto = React.createContext();
+
+export default MeuContexto;
+
+function Pai() {
+  const dadosPai = "Dados do Pai";
+
+  return (
+    <div>
+      <h2>Pai</h2>
+      <MeuContexto.Provider value={dadosPai}>
+        <Filho />
+      </MeuContexto.Provider>
+    </div>
+  );
+}
+
+
+function Filho() {
+  const dadosFilho = "Dados do Filho";
+
+  return (
+    <div>
+      <h3>Filho</h3>
+      <MeuContexto.Consumer>
+        {(dadosPai) => (
+          <Neto dadosPai={dadosPai} dadosFilho={dadosFilho} />
+        )}
+      </MeuContexto.Consumer>
+    </div>
+  );
+}
+
+
+function Neto(props) {
+  return (
+    <div>
+      <h4>Neto</h4>
+      <MeuContexto.Consumer>
+        {(dadosPai) => (
+          <div>
+            <p>Dados do Pai: {dadosPai}</p
+            <p>Dados do Pai: {dadosPai}</p>
+            <p>Dados do Filho: {props.dadosFilho}</p>
+          </div>
+        )}
+      </MeuContexto.Consumer>
+    </div>
+  );
+}
+
